@@ -1,0 +1,5 @@
+Shortest distance from vertex 0 to vertex 0: 0
+Shortest distance from vertex 0 to vertex 1: 5
+Shortest distance from vertex 0 to vertex 2: 3
+Shortest distance from vertex 0 to vertex 3: 8
+Shortest distance from vertex 0 to vertex 4: 5
