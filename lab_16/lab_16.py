@@ -3,49 +3,46 @@
 # предметов так, чтобы их суммарный вес не превышал вместимость рюкзака, а суммарная стоимость была максимальной.
 
 
-# Заданные предметы: каждый элемент - кортеж (вес, стоимость)
-items = [(2, 6), (2, 10), (3, 12), (4, 13)]
+def knapsack_dynamic(w, p, n, max_weight):
+    # Создаем таблицу A для хранения промежуточных результатов размером (n+1) x (max_weight+1)
+    A = [[0] * (max_weight + 1) for _ in range(n + 1)]
 
-# Вместимость рюкзака
-capacity = 5
-
-# Функция для решения задачи о рюкзаке
-def knapsack(items, capacity):
-    n = len(items)
-    # Создаем двумерную таблицу для хранения максимальных стоимостей
-    # dp[i][w] будет содержать максимальную стоимость для первых i предметов
-    # при ограниченной вместимости w
-    dp = [[0 for _ in range(capacity + 1)] for _ in range(n + 1)]
-
-    # Заполняем таблицу построчно
-    for i in range(1, n + 1):
-        weight, value = items[i - 1]
-        for w in range(1, capacity + 1):
-            # Если вес текущего предмета больше оставшейся вместимости, мы не можем его взять
-            if weight > w:
-                dp[i][w] = dp[i - 1][w]
+    # Заполняем таблицу A
+    for i in range(n + 1):
+        for s in range(max_weight + 1):
+            if i == 0 or s == 0:
+                # Начальные условия: нулевая строка и нулевой столбец равны нулю
+                A[i][s] = 0
+            elif s >= w[i - 1]:
+                # Если текущий предмет вмещается в рюкзак
+                A[i][s] = max(A[i - 1][s], A[i - 1][s - w[i - 1]] + p[i - 1])
             else:
-                # Мы выбираем максимум из двух вариантов:
-                # 1. Взять текущий предмет и добавить его стоимость к стоимости предыдущих предметов
-                # 2. Не брать текущий предмет и оставить стоимость как у предыдущих предметов
-                dp[i][w] = max(dp[i - 1][w], dp[i - 1][w - weight] + value)
+                # Если текущий предмет не вмещается в рюкзак
+                A[i][s] = A[i - 1][s]
 
-    # Теперь нужно восстановить выбранные предметы
-    selected_items = []
-    w = capacity
-    for i in range(n, 0, -1):
-        if dp[i][w] != dp[i - 1][w]:
-            weight, value = items[i - 1]
-            selected_items.append((weight, value))
-            w -= weight
+    return A
 
-    return dp[n][capacity], selected_items
+def find_ans(A, w, n, max_weight):
+    ans = []
+    k, s = n, max_weight
 
-# Решаем задачу о рюкзаке
-max_value, selected_items = knapsack(items, capacity)
+    while k > 0 and s > 0:
+        if A[k][s] != A[k - 1][s]:
+            # Если текущий предмет входит в оптимальное решение
+            ans.append(k)
+            s -= w[k - 1]
+        k -= 1
 
-# Выводим результат
-print(f"Максимальная стоимость: {max_value}")
-print("Выбранные предметы:")
-for item in selected_items:
-    print(f"Вес: {item[0]}, Стоимость: {item[1]}")
+    return ans
+
+# Пример использования
+weights = [2, 3, 4, 5]  # Веса предметов
+profits = [3, 4, 5, 6]  # Прибыль от предметов
+num_items = len(weights)  # Количество предметов
+max_weight = 5          # Максимальный вес рюкзака
+
+A = knapsack_dynamic(weights, profits, num_items, max_weight)
+selected_items = find_ans(A, weights, num_items, max_weight)
+
+print("Максимальная прибыль:", A[num_items][max_weight])
+print("Выбранные предметы:", selected_items)
