@@ -27,7 +27,16 @@ def bellman_ford(graph, start_vertex):
                     if new_distance < distances[v]:
                         distances[v] = new_distance
 
-    return distances
+    # Дополнительная итерация для обнаружения цикла отрицательного веса.
+    for u in range(num_vertices):
+        for v in range(num_vertices):
+            if graph[u][v] != 0:
+                new_distance = distances[u] + graph[u][v]
+                if new_distance < distances[v]:
+                    # Обнаружен отрицательный цикл в графе
+                    return None
+
+    return distances  # Возвращаем список расстояний
 
 # Функция для записи результата в файл.
 def write_result_to_file(result, output_file):
@@ -42,7 +51,14 @@ if __name__ == "__main__":
     start_vertex = 0  # Начальная вершина для поиска кратчайших путей.
 
     graph = read_graph_from_file(input_file)
-    shortest_distances = bellman_ford(graph, start_vertex)
-    write_result_to_file(shortest_distances, output_file)
+    has_negative_cycle = bellman_ford(graph, start_vertex)
 
-    print("Результат записан в файл", output_file)
+if has_negative_cycle is None:
+    print("Граф содержит отрицательный цикл.")
+else:
+    shortest_distances = bellman_ford(graph, start_vertex)
+    if shortest_distances is not None:
+        write_result_to_file(shortest_distances, output_file)
+        print("Результат записан в файл", output_file)
+    else:
+        print("Граф содержит отрицательный цикл, результат не может быть вычислен.")
